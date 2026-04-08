@@ -1,0 +1,62 @@
+name: misinfo-moderation-env
+version: "1.0.0"
+description: >
+  MisinformationModerationEnv — An OpenEnv-compliant reinforcement learning
+  environment that simulates a real-world social media content moderation system.
+  An AI agent receives posts with truth scores, virality scores, and user credibility
+  data, then decides how to moderate: flag, fact-check, reduce visibility, ban, or ignore.
+author: "Ved Revankar (vedcreator23)"
+repo_id: "RV987654321/misinfo-moderation-env"
+tags:
+  - content-moderation
+  - misinformation
+  - social-media
+  - rl-environment
+  - openenv
+  - nlp
+environment:
+  type: http
+  base_url: "http://localhost:7860"
+  health_check: "/health"
+tasks:
+  - name: easy
+    description: "Detect obvious fake news with very low truth scores (<0.10)"
+    max_steps: 10
+    difficulty: easy
+  - name: medium
+    description: "Handle contextual misinformation with ambiguous truth signals"
+    max_steps: 15
+    difficulty: medium
+  - name: hard
+    description: "Minimise spread over time while avoiding false positives"
+    max_steps: 20
+    difficulty: hard
+observation:
+  type: ModerationObservation
+  fields:
+    - current_post.content
+    - current_post.truth_score
+    - current_post.virality_score
+    - current_post.category
+    - current_user.credibility_score
+    - current_user.prior_violations
+    - platform_metrics.misinformation_spread_rate
+    - platform_metrics.false_positive_rate
+action:
+  type: ModerationAction
+  fields:
+    - action_type
+    - post_id
+    - user_id
+reward:
+  range: [0.0, 1.0]
+  dense: true
+  description: >
+    Normalised dense reward per step based on correctness of moderation action.
+    Penalties applied for false positives, unnecessary bans, and missed misinformation.
+docker:
+  image: misinfo-moderation-env
+  port: 7860
+spaces:
+  sdk: docker
+  hardware: cpu-basic
